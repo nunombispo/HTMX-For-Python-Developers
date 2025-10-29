@@ -55,7 +55,7 @@
                                   hx-get="/todos/count" 
                                   hx-trigger="load, todoChanged from:body"
                                   hx-swap="innerHTML">
-                                {{ todos|selectattr("completed", "equalto", false)|list|length }}
+                                  {% include "todo_count.html" %}
                             </span>
                             <small class="text-muted ms-2">incomplete tasks</small>
                         </div>
