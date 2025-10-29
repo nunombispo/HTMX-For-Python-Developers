@@ -31,11 +31,16 @@ async def add_todo(request: Request, task: str = Form(...)):
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M")
     }
     todos.append(new_todo)
-    # Return just the new todo item HTML to swap in
-    return templates.TemplateResponse("todo_item.html", {
-        "request": request,
-        "todo": new_todo
-    })
+    # Return the new todo item and update empty state and count via out-of-band swaps
+    template_env = templates.env
+    todo_html = template_env.get_template("todo_item.html").render(todo=new_todo, request=request)
+    empty_state_html = template_env.get_template("empty_state.html").render(
+        has_todos=len(todos) > 0, request=request
+    )
+    count_html = template_env.get_template("todo_count.html").render(
+        count=len([t for t in todos if not t["completed"]]), request=request
+    )
+    return f'{todo_html}<div id="empty-state" class="text-center text-muted py-5" hx-swap-oob="true">{empty_state_html}</div><span id="todo-count" class="badge bg-info" hx-swap-oob="true">{count_html}</span>'
 
 
 @app.delete("/todos/{todo_id}", response_class=HTMLResponse)
@@ -43,7 +48,15 @@ async def delete_todo(request: Request, todo_id: str):
     """Delete a todo item"""
     global todos
     todos = [todo for todo in todos if todo["id"] != todo_id]
-    return ""  # Empty response removes the element
+    # Return empty string to remove element, plus out-of-band updates for empty state and count
+    template_env = templates.env
+    empty_state_html = template_env.get_template("empty_state.html").render(
+        has_todos=len(todos) > 0, request=request
+    )
+    count_html = template_env.get_template("todo_count.html").render(
+        count=len([t for t in todos if not t["completed"]]), request=request
+    )
+    return f'<div id="empty-state" class="text-center text-muted py-5" hx-swap-oob="true">{empty_state_html}</div><span id="todo-count" class="badge bg-info" hx-swap-oob="true">{count_html}</span>'
 
 
 @app.put("/todos/{todo_id}/toggle", response_class=HTMLResponse)
@@ -52,10 +65,12 @@ async def toggle_todo(request: Request, todo_id: str):
     for todo in todos:
         if todo["id"] == todo_id:
             todo["completed"] = not todo["completed"]
-            return templates.TemplateResponse("todo_item.html", {
-                "request": request,
-                "todo": todo
-            })
+            template_env = templates.env
+            todo_html = template_env.get_template("todo_item.html").render(todo=todo, request=request)
+            count_html = template_env.get_template("todo_count.html").render(
+                count=len([t for t in todos if not t["completed"]]), request=request
+            )
+            return f'{todo_html}<span id="todo-count" class="badge bg-info" hx-swap-oob="true">{count_html}</span>'
     return ""
 
 
