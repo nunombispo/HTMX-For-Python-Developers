@@ -16,6 +16,9 @@
         .todo-item {
             transition: all 0.3s ease;
         }
+        #empty-state:empty {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -50,7 +53,7 @@
                         <div class="mb-3">
                             <span id="todo-count" class="badge bg-info" 
                                   hx-get="/todos/count" 
-                                  hx-trigger="load"
+                                  hx-trigger="load, todoChanged from:body"
                                   hx-swap="innerHTML">
                                 {{ todos|selectattr("completed", "equalto", false)|list|length }}
                             </span>
@@ -64,7 +67,10 @@
                             {% endfor %}
                         </div>
 
-                        <div id="empty-state" class="text-center text-muted py-5" {% if todos %}style="display: none;"{% endif %}>
+                        <div id="empty-state" class="text-center text-muted py-5" 
+                             hx-get="/todos/empty-state"
+                             hx-trigger="load, todoChanged from:body"
+                             hx-swap="innerHTML">
                             {% include "empty_state.html" %}
                         </div>
                     </div>
