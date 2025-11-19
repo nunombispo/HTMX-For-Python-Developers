@@ -2,6 +2,8 @@
 
 A simple, interactive todo list application demonstrating HTMX with FastAPI, Jinja2 templates, and Bootstrap 5 styling. Perfect for showcasing HTMX's power to Python developers!
 
+> 📚 **Support the Project**: This demo is part of the [HTMX for Python Developers](https://www.kickstarter.com/projects/devasservice/htmx-for-python-developers-book-and-course) book and course on Kickstarter!
+
 ## Features
 
 - ✅ Add todos without page refresh
